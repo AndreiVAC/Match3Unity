@@ -2,13 +2,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using TMPro;
-using Game;
+using Level;
 namespace Timer
 {
     public class StageTimer : MonoBehaviour
     {
         private bool paused = false;
-        private float stageTimeSeconds = 20;
+        private float stageTimeSeconds = 45;
         private int currentDisplayedSeconds = 0;
         public TextMeshProUGUI timerText;
         private float timeElapsed;
@@ -23,6 +23,7 @@ namespace Timer
 
         void Start()
         {
+            timeSpanTotal = TimeSpan.FromSeconds(stageTimeSeconds);
             timeElapsed = 0f;
             UpdateTimerText();
         }
@@ -35,18 +36,20 @@ namespace Timer
             }
         }
 
+        TimeSpan timeSpanTotal;
         public void Setup(float timeSeconds){
             timeElapsed = 0f;
             stageTimeSeconds = timeSeconds;
             lastDisplayedSeconds = -1;
             UpdateTimerText();
             paused = true;
+            timeSpanTotal = TimeSpan.FromSeconds(stageTimeSeconds);
         }
         public void Toggle()
         {
             paused = !paused;
         }
-        void Update()
+        private void Update()
         {
             if (paused)
             {
@@ -60,7 +63,8 @@ namespace Timer
             {
                 if (currentDisplayedSeconds > stageTimeSeconds)
                 {
-                    timerText.text = new string("YOU LOSE.");
+                    Debug.Log("YOU LOSE, time has run out. Reloading stage...");
+                    Level.Manager.Instance.LoadCurrentStage();
                     paused = true;
                     return;
                 }
@@ -69,12 +73,16 @@ namespace Timer
             }
         }
 
-        void UpdateTimerText()
+        private void UpdateTimerText()
         {
-            TimeSpan timeSpan = TimeSpan.FromSeconds(timeElapsed);
-            string formattedTime = string.Format("{0:D2}:{1:D2}", timeSpan.Minutes, timeSpan.Seconds);
-
-            timerText.text = formattedTime;
+            timerText.text = GetTime();
+        }
+        public string GetTime()
+        {
+            TimeSpan timeSpanElapsed = TimeSpan.FromSeconds(timeElapsed);
+            string formattedTime = string.Format("{0:D2}:{1:D2}/{2:D2}:{3:D2}", timeSpanElapsed.Minutes, timeSpanElapsed.Seconds,
+            timeSpanTotal.Minutes,timeSpanTotal.Seconds);
+            return formattedTime;
         }
     }
 }

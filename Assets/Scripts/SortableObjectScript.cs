@@ -1,34 +1,37 @@
-using System;
-using System.Collections;
 using Container;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.UI;
 using UnityEngine;
 
 
 [System.Serializable]
 public class SortableObject : MonoBehaviour
 {
-    public Slot shelfSlot = null;
-    public void setShelfSlot(Slot newSlot)
+     [SerializeField]
+    private Slot _shelfSlot = null;
+
+    public Slot ShelfSlot
     {
-        shelfSlot = newSlot;
+        get => _shelfSlot;
+        set => _shelfSlot = value;
     }
-    public void destroySelf()
+
+    private Vector3 _lastPosition;
+
+    public Vector3 LastPosition
     {
-        Destroy(gameObject);
+        get => _lastPosition;
+        set => _lastPosition = value;
     }
-    private Vector3 lastPosition;
-    public void setLastPosition(Vector3 newLastPosition)
+
+    private int _type = -1;
+
+    public int Type
     {
-        lastPosition = newLastPosition;
+        get => _type;
+        set => _type = value;
     }
-    public int type = 0;
-    public int getType => type;
     public void ClickReleased()
     {
-        Vector3 clickPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 clickPosition = Level.Manager.Instance.mainCamera.ScreenToWorldPoint(Input.mousePosition);
         Shelf shelfClicked = GetShelfAtPosition(clickPosition);
 
         if (shelfClicked == null)
@@ -37,42 +40,42 @@ public class SortableObject : MonoBehaviour
             return;
         }
 
-        Slot availableShelfSlot = shelfClicked.GetClosestFrontLayerSlot(clickPosition);
+        Slot availableShelfSlot = shelfClicked.FindClosestSlot(clickPosition);
 
-        if (shelfSlot == availableShelfSlot)
+        if (ShelfSlot == availableShelfSlot)
         {
             ResetPosition();
             return;
         }
 
-        if (!availableShelfSlot.isAvailable())
+        if (!availableShelfSlot.IsAvailable())
         {
-            swapSlotObjects(availableShelfSlot, shelfSlot);
+            SwapSlotObjects(availableShelfSlot, ShelfSlot);
             return;
         }
         PlaceInSlot(availableShelfSlot);
     }
 
-    public void swapSlotObjects(Slot firstSlot, Slot secondSlot)
+    public static void SwapSlotObjects(Slot firstSlot, Slot secondSlot)
     {
-        var firstObject = firstSlot.getObjectHeld;
-        var secondObject = secondSlot.getObjectHeld;
-        var firstSlotPosition = firstSlot.getOffsetPosition + firstSlot.getShelf.transform.position;
-        firstObject.setLastPosition(secondSlot.getOffsetPosition + secondSlot.getShelf.transform.position);
-        secondObject.setLastPosition(firstSlotPosition);
+        var firstObject = firstSlot.ObjectHeld;
+        var secondObject = secondSlot.ObjectHeld;
+        var firstSlotPosition = firstSlot.transform.position;
+        firstObject.LastPosition = secondSlot.transform.position;
+        secondObject.LastPosition = firstSlotPosition;
 
 
-        firstObject.setShelfSlot(secondSlot);
-        secondObject.setShelfSlot(firstSlot);
+        firstObject.ShelfSlot = secondSlot;
+        secondObject.ShelfSlot = firstSlot;
 
-        firstObject.shelfSlot.setType(firstObject.getType);
-        secondObject.shelfSlot.setType(secondObject.getType);
+        firstObject.ShelfSlot.SpawnType = firstObject.Type;
+        secondObject.ShelfSlot.SpawnType = secondObject.Type;
 
-        firstObject.shelfSlot.setObjectHeld(firstObject);
-        secondObject.shelfSlot.setObjectHeld(secondObject);
+        firstObject.ShelfSlot.ObjectHeld = firstObject;
+        secondObject.ShelfSlot.ObjectHeld = secondObject;
 
-        firstSlot.getShelf.UpdateShelf();
-        secondSlot.getShelf.UpdateShelf();
+        firstSlot.Shelf.UpdateShelf();
+        secondSlot.Shelf.UpdateShelf();
 
         firstObject.ResetPosition();
         secondObject.ResetPosition();
@@ -92,7 +95,7 @@ public class SortableObject : MonoBehaviour
 
     private void ResetPosition()
     {
-        transform.position = lastPosition;
+        transform.position = _lastPosition;
     }
 
     public void Move(Vector3 newPos)
@@ -102,16 +105,13 @@ public class SortableObject : MonoBehaviour
 
     private void PlaceInSlot(Slot newSlot)
     {
-        transform.position = newSlot.getOffsetPosition + newSlot.getShelf.transform.position;
-        setLastPosition(transform.position);
-        shelfSlot.setType(-1);
-        shelfSlot.getShelf.UpdateShelf();
-        newSlot.setType(type);
-        newSlot.setObjectHeld(this);
-        setShelfSlot(newSlot);
-        newSlot.getShelf.UpdateShelf();
-    }
-    void Start()
-    {
+        transform.position = newSlot.transform.position;
+        LastPosition = transform.position;
+        ShelfSlot.SpawnType = -1;
+        newSlot.SpawnType = Type;
+        newSlot.ObjectHeld = this;
+        ShelfSlot.Shelf.UpdateShelf();
+        ShelfSlot = newSlot;
+        newSlot.Shelf.UpdateShelf();
     }
 }

@@ -10,11 +10,12 @@ namespace Mouse
         {
             if (Input.GetMouseButtonDown(0))
             {
-                RaycastHit2D raycast = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero, float.PositiveInfinity, LayerMask.GetMask("MovableObject"));
+                RaycastHit2D raycast = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero, float.PositiveInfinity, LayerMask.GetMask("SortableObject"));
                 if (raycast)
                 {
                     lastObjectClicked = raycast.collider.GetComponent<SortableObject>();
-                    lastObjectClicked.setLastPosition(lastObjectClicked.transform.position);
+                    lastObjectClicked.LastPosition = lastObjectClicked.transform.position;
+                    lastObjectClicked.GetComponent<SpriteRenderer>().sortingOrder = 2;
                     dragging = raycast.transform;
                     offset = dragging.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
@@ -31,6 +32,7 @@ namespace Mouse
                     if (lastObjectClicked)
                     {
                         lastObjectClicked.ClickReleased();
+                        lastObjectClicked.GetComponent<SpriteRenderer>().sortingOrder = 1;
                         lastObjectClicked = null;
                     }
                 }

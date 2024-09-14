@@ -5,42 +5,62 @@ namespace Container
 {
     public class Shelf : MonoBehaviour
     {
-        public List<SlotLayer> slotLayers;
+        public List<List<int>> slotSpawns = new List<List<int>>();
+        public List<Slot> slots = new List<Slot>();
         void Start()
         {
-            foreach (SlotLayer slotLayer in slotLayers)
+            foreach (Slot slot in slots)
             {
-                foreach (Slot slot in slotLayer.slots)
+                slot.Shelf = this;
+            }
+            SpawnObjects();
+        }
+
+        private void AdvanceLayer()
+        {
+            if (slotSpawns.Count > 1)
+            {
+                slotSpawns.RemoveAt(0); //pop to next layer
+                for(int i = 0; i < slots.Count; i++)
                 {
-                    slot.setShelf(this);
+                    slots[i].SpawnType = slotSpawns[0][i]; // set new object types
+                }
+                SpawnObjects(); // respawn new objects
+                UpdateNextLayerDisplay();
+            }
+            else
+            {
+                foreach (Slot slot in slots) // for last layer case, all slots should be empty
+                {
+                    slot.SpawnType = -1;
                 }
             }
-            spawnFrontLayerSlots();
         }
-        private void spawnFrontLayerSlots()
+        private void SpawnObjects()
         {
-            Debug.Log(slotLayers);
-            foreach (Slot slot in slotLayers[0].slots)
+            foreach (Slot slot in slots)
             {
-                if (slot.spawnObject == null)
+                int slotType = slot.SpawnType;
+                if(slotType == -1) // don't spawn object if empty slot id.
                 {
                     continue;
                 }
-                var spawnPos = slot.getOffsetPosition + slot.getShelf.transform.position;
-                SortableObject newObject = Instantiate(slot.spawnObject, spawnPos, Quaternion.identity);
-                slot.setType(newObject.getType);
-                slot.setObjectHeld(newObject);
-                newObject.setShelfSlot(slot);
-                newObject.setLastPosition(spawnPos);
+                SortableObject spawnObject = Level.Manager.Instance.sortableTypes[slotType];
+                var spawnPos = slot.transform.position;
+                SortableObject newObject = Instantiate(spawnObject, spawnPos, Quaternion.identity);
+                slot.ObjectHeld = newObject;
+                newObject.ShelfSlot = slot;
+                newObject.LastPosition = spawnPos;
+                newObject.Type = slotType ;
             }
         }
-        public Slot GetClosestFrontLayerSlot(Vector3 itemPosition)
+        public Slot FindClosestSlot(Vector3 itemPosition)
         {
             Slot closestSlot = null;
             float closestDistance = Mathf.Infinity;
-            foreach (Slot slot in slotLayers[0].slots)
+            foreach (Slot slot in slots)
             {
-                float distance = Vector3.Distance(slot.getOffsetPosition + slot.getShelf.transform.position, itemPosition);
+                float distance = Vector3.Distance(slot.transform.position, itemPosition);
                 if (distance < closestDistance)
                 {
                     closestDistance = distance;
@@ -50,35 +70,66 @@ namespace Container
             return closestSlot;
         }
 
+        private void UpdateNextLayerDisplay()
+        {
+            
+            bool isLastLayer = slotSpawns.Count <= 1;
+            for(int i = 0; i<slots.Count ;i++)
+            {
+                GameObject currentObjectIcon = slots[i].NextObjectIcon;
+                SpriteRenderer currentSpriteRenderer = currentObjectIcon.GetComponent<SpriteRenderer>();
+
+                if(isLastLayer)
+                {
+                    currentSpriteRenderer.enabled = false;
+                    continue;
+                }
+
+                var nextType = slotSpawns[1][i];
+                if(nextType == -1)
+                {
+                    currentSpriteRenderer.enabled = false;
+                    continue;
+                }
+
+                SortableObject nextObject = Level.Manager.Instance.sortableTypes[nextType];
+                SpriteRenderer nextSpriteRenderer = nextObject.GetComponent<SpriteRenderer>();
+
+                currentSpriteRenderer.enabled = true;
+                currentSpriteRenderer.sprite = nextSpriteRenderer.sprite;
+                var nextColor = nextSpriteRenderer.color;
+                nextColor.a = 0.3f;
+                currentSpriteRenderer.color = nextColor;
+
+                currentObjectIcon.transform.localScale = nextSpriteRenderer.transform.localScale*1.5f;
+            }
+
+        }
+
         public void UpdateShelf()
         {
-            if (FrontLayerHasMatch())
+            UpdateNextLayerDisplay();
+            // check for matches, or if it's empty
+            if (DoesFrontLayerHaveMatch())
             {
-                for (int i = 0; i < slotLayers[0].slots.Length; i++)
+                foreach(Slot slot in slots)
                 {
-                    slotLayers[0].slots[i].destroyObjectHeld();
+                    slot.DestroyObjectHeld();
+                    slot.SpawnType = -1;
                 }
-                foreach (Slot slot in slotLayers[0].slots)
-                {
-                    slot.setType(-1);
-                } 
             }
             if (IsFrontLayerEmpty())
             {
-                if (slotLayers.Count > 1)
-                {
-                    slotLayers.RemoveAt(0); //pop to next layer
-                    spawnFrontLayerSlots();
-                } 
+                AdvanceLayer();
             }
-            Game.Manager.Instance.updateGameStateNextFrame();
+            Level.Manager.Instance.updateGameStateNextFrame();
         }
 
         private bool IsFrontLayerEmpty()
         {
-            foreach (Slot slot in slotLayers[0].slots)
+            foreach (Slot slot in slots)
             {
-                if (slot.getType != -1)
+                if (slot.SpawnType != -1)
                 {
                     return false;
                 }
@@ -86,87 +137,27 @@ namespace Container
             return true;
         }
 
-        private bool FrontLayerHasMatch()
+        private bool DoesFrontLayerHaveMatch()
         {
-            if (slotLayers[0].slots[0].getType == -1)
+            if (slots[0].SpawnType == -1)
             {
                 return false;
             }
-            if(slotLayers[0].slots.Count() <= 1)
+            var totalSlots = slots.Count();
+            if (totalSlots <= 1)
             {
                 return false;
             }
-            for (int i = 1; i < slotLayers[0].slots.Length; i++)
+            for (int i = 1; i < totalSlots; i++)
             {
-                var currentSlot = slotLayers[0].slots[i];
-                var previousSlot = slotLayers[0].slots[i - 1];
-                if (currentSlot.getType == -1 || currentSlot.getType != previousSlot.getType)
+                var currentSlot = slots[i].SpawnType;
+                var previousSlot = slots[i - 1].SpawnType;
+                if (currentSlot == -1 || currentSlot != previousSlot)
                 {
                     return false;
                 }
             }
             return true;
         }
-
-        void Update()
-        {
-
-        }
-
-    }
-
-    [System.Serializable]
-    public class SlotLayer
-    {
-        public Slot[] slots;
-        public SlotLayer(int length)
-    {
-        slots = new Slot[length];
-        for (int i = 0; i < length; i++)
-        {
-            slots[i] = new Slot();
-        }
-    }
-    }
-    
-
-    [System.Serializable]
-    public class Slot
-    {
-        public SortableObject spawnObject{get;set;}
-        [SerializeField]
-        private Shelf shelf;
-        public void setShelf(Shelf newShelf)
-        {
-            shelf = newShelf;
-        }
-        public Shelf getShelf => shelf;
-        private SortableObject objectHeld;
-        public SortableObject getObjectHeld => objectHeld;
-        public void setObjectHeld(SortableObject newObject)
-        {
-            objectHeld = newObject;
-        }
-        public void destroyObjectHeld()
-        {
-            objectHeld.destroySelf();
-        }
-        public Vector3 offsetPosition;
-        [SerializeField]
-        private int type = -1;
-        public void setType(int newType)
-        {
-            type = newType;
-        }
-        public bool isAvailable()
-        {
-            if (getType == -1)
-            {
-                return true;
-            }
-            return false;
-        }
-        public int getType => type;
-        public Vector3 getOffsetPosition => offsetPosition;
     }
 }

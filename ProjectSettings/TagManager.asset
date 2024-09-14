@@ -4,8 +4,9 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - MovableObject
   - Shelf
+  - SortableObject
+  - Slot
   layers:
   - Default
   - TransparentFX
@@ -18,7 +19,7 @@ TagManager:
   - 
   - 
   - Shelf
-  - MovableObject
+  - SortableObject
   - 
   - 
   - 

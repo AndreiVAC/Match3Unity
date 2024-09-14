@@ -1,0 +1,55 @@
+{
+    "duration": 90,
+    "difficulty": 0,
+    "shelves": [
+        {
+            "offsetPosition": "-1,2,1",
+            "width": 3,
+            "height": 1,
+            "layers": [
+                {
+                    "spawns": [2,1,1]
+                },
+                {
+                    "spawns": [-1,-1,1]
+                }
+            ]
+        },
+        {
+            "offsetPosition": "1,-1,1",
+            "width": 1,
+            "height": 3,
+            "layers": [
+                {
+                    "spawns": [2,-1,0]
+                }
+            ]
+        },
+        {
+            "offsetPosition": "0,3.5,1",
+            "width": 3,
+            "height": 1,
+            "layers": [
+                {
+                    "spawns": [0,0,-1]
+                },
+                {
+                    "spawns": [0,0,1]
+                },
+                {
+                    "spawns": [2,-1,1]
+                }
+            ]
+        },
+        {
+            "offsetPosition": "-1,-2,1",
+            "width": 1,
+            "height": 3,
+            "layers": [
+                {
+                    "spawns": [0,1,-1]
+                }
+            ]
+        }
+    ]
+}

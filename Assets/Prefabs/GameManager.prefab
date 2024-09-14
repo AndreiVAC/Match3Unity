@@ -44,3 +44,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56f963271a618954184537c992cd7375, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  difficultyText: {fileID: 0}
+  currentStage:
+    duration: 0
+    difficulty: 0
+    shelves: []
+  shelfAsset: {fileID: 7809809521598195743, guid: 9de2faf057ee7fb4c97fb42a71ee4c1f, type: 3}
+  slotAsset: {fileID: 871285337294565463, guid: 59abbd6773f6cae499699e3c4a68793e, type: 3}
+  sortableTypes:
+  - {fileID: 1740458805139351992, guid: 4beb72efa2cc524459de7c69beb41f76, type: 3}
+  - {fileID: 2376733250187132402, guid: 4bd57d2483c216a48be6449203a28d16, type: 3}
+  - {fileID: 5287360122714696339, guid: 4544dca9290a9534f808d65697507609, type: 3}

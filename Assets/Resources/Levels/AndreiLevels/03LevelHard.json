@@ -1,0 +1,77 @@
+{
+    "duration": 105,
+    "difficulty": 1,
+    "shelves": [
+        {
+            "offsetPosition": "0.5,3,1",
+            "width": 4,
+            "height": 1,
+            "layers": [
+                {
+                    "spawns": [0,1,-1,-1]
+                },
+                {
+                    "spawns": [-1,-1,1,1]
+                },
+                {
+                    "spawns": [0,0,0,-1]
+                }
+            ]
+        },
+        {
+            "offsetPosition": "1.5,0,1",
+            "width": 1,
+            "height": 4,
+            "layers": [
+                {
+                    "spawns": [-1,1,-1,2]
+                },
+                {
+                    "spawns": [2,2,-1,-1]
+                },
+                {
+                    "spawns": [-1,-1,2,-1]
+                }
+            ]
+        },
+        {
+            "offsetPosition": "-1.5,0,1",
+            "width": 1,
+            "height": 4,
+            "layers": [
+                {
+                    "spawns": [1,0,1,0]
+                },
+                {
+                    "spawns": [-1,1,-1,-1]
+                }
+            ]
+        },
+        {
+            "offsetPosition": "-0.5,-3,1",
+            "width": 4,
+            "height": 1,
+            "layers": [
+                {
+                    "spawns": [0,-1,0,1]
+                },
+                {
+                    "spawns": [-1,-1,2,2]
+                }
+            ]
+        },
+        {
+            "offsetPosition": "0,0,1",
+            "width": 1,
+            "height": 4,
+            "layers": [
+                {
+                    "spawns": [2,2,-1,0]
+                },
+                {
+                    "spawns": [-1,0,0,0]
+                }
+            ]
+        }
+    ]
+}

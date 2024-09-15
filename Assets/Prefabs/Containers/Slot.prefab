@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50f2d141d591b3a4ea7779688989d732, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nextObjectIcon: {fileID: 6912885871969675068}
+  NextObjectIcon: {fileID: 6912885871969675068}
   shelf: {fileID: 0}
   objectHeld: {fileID: 0}
   spawnType: -1

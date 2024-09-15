@@ -2,9 +2,10 @@ using UnityEngine;
 
 namespace Container
 {
+    [System.Serializable]
     public class Slot : MonoBehaviour
     {
-        public GameObject NextObjectIcon { get; set; } 
+        public GameObject NextObjectIcon;
 
         [SerializeField]
         private Shelf shelf;
